@@ -2,7 +2,7 @@ const status = document.getElementById('status');
 const inputs = Object.fromEntries(['east','north','height','heading'].map(id => [id,document.getElementById(id)]));
 const origin = { longitude: -58.2607608, latitude: -34.7159706 };
 const placementStorageKey = 'ofelia-cesium-placement-v2';
-let viewer, tileset, building, groundPatch;
+let viewer, tileset, building;
 const orbit = {heading: 0, pitch: -0.48, distance: 118};
 const orbitLimits = {minDistance: 28, maxDistance: 150, minPitch: -1.4, maxPitch: -0.12};
 
@@ -26,29 +26,6 @@ function setPlacement() {
     center,
     new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(p.heading),0,0),
   );
-  const clipCorners = [[-9,-16],[9,-16],[9,16],[-9,16]];
-  const patchCorners = [[-9.5,-16.5],[9.5,-16.5],[9.5,16.5],[-9.5,16.5]];
-  const worldCorners = corners => corners.map(([x,y]) =>
-    Cesium.Matrix4.multiplyByPoint(building.modelMatrix,new Cesium.Cartesian3(x,y,0),new Cesium.Cartesian3()));
-  tileset.clippingPolygons = new Cesium.ClippingPolygonCollection({
-    enabled: false,
-    polygons: [new Cesium.ClippingPolygon({
-      positions: worldCorners(clipCorners),
-    })],
-  });
-  const patchPositions = worldCorners(patchCorners).map(position => {
-    const point = Cesium.Cartographic.fromCartesian(position);
-    return Cesium.Cartesian3.fromRadians(point.longitude,point.latitude,p.height+0.2);
-  });
-  if (groundPatch) viewer.entities.remove(groundPatch);
-  groundPatch = viewer.entities.add({
-    polygon: {
-      hierarchy: patchPositions,
-      perPositionHeight: true,
-      material: Cesium.Color.fromCssColorString('#7e786e'),
-      doubleSided: true,
-    },
-  });
   localStorage.setItem(placementStorageKey,JSON.stringify(readPlacement()));
   viewer.scene.requestRender();
 }
