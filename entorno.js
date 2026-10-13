@@ -31,6 +31,7 @@ function setPlacement() {
   const worldCorners = corners => corners.map(([x,y]) =>
     Cesium.Matrix4.multiplyByPoint(building.modelMatrix,new Cesium.Cartesian3(x,y,0),new Cesium.Cartesian3()));
   tileset.clippingPolygons = new Cesium.ClippingPolygonCollection({
+    enabled: false,
     polygons: [new Cesium.ClippingPolygon({
       positions: worldCorners(clipCorners),
     })],
