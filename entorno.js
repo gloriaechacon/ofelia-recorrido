@@ -101,21 +101,23 @@ function installMapControls() {
     const position = viewer.camera.positionCartographic;
     if (!Number.isFinite(position.height)) return;
     geodesic.setEndPoints(center,position);
-    const beyondRadius = geodesic.surfaceDistance > 7000;
-    const distanceText = `Distancia al edificio: ${(Math.min(geodesic.surfaceDistance,7000)/1000).toLocaleString('es-AR',{maximumFractionDigits:2})} km`;
+    const beyondRadius = geodesic.surfaceDistance > 7000.01;
+    const height = Cesium.Math.clamp(position.height,p.height+2,5000);
+    if (beyondRadius || Math.abs(height-position.height)>=0.01) {
+      const location = beyondRadius
+        ? geodesic.interpolateUsingSurfaceDistance(7000,boundary) : position;
+      const direction = Cesium.Cartesian3.clone(viewer.camera.directionWC);
+      const up = Cesium.Cartesian3.clone(viewer.camera.upWC);
+      viewer.camera.setView({
+        destination:Cesium.Cartesian3.fromRadians(location.longitude,location.latitude,height),
+        orientation:{direction,up},
+      });
+      geodesic.setEndPoints(center,viewer.camera.positionCartographic);
+      viewer.scene.requestRender();
+    }
+    const distanceText = `Distancia al edificio: ${(geodesic.surfaceDistance/1000).toLocaleString('es-AR',{maximumFractionDigits:2})} km`;
     const distanceLabel = document.getElementById('map-distance');
     if (distanceLabel.textContent !== distanceText) distanceLabel.textContent = distanceText;
-    const height = Cesium.Math.clamp(position.height,p.height+2,5000);
-    if (!beyondRadius && Math.abs(height-position.height)<0.01) return;
-    const location = beyondRadius
-      ? geodesic.interpolateUsingSurfaceDistance(7000,boundary) : position;
-    const direction = Cesium.Cartesian3.clone(viewer.camera.directionWC);
-    const up = Cesium.Cartesian3.clone(viewer.camera.upWC);
-    viewer.camera.setView({
-      destination:Cesium.Cartesian3.fromRadians(location.longitude,location.latitude,height),
-      orientation:{direction,up},
-    });
-    viewer.scene.requestRender();
   });
 }
 function installOrbitControls() {
