@@ -1,7 +1,7 @@
 const status = document.getElementById('status');
 const inputs = Object.fromEntries(['east','north','height','heading'].map(id => [id,document.getElementById(id)]));
 const origin = { longitude: -58.2607608, latitude: -34.7159706 };
-const placementStorageKey = 'ofelia-cesium-placement-v4';
+const placementStorageKey = 'ofelia-cesium-placement-v5';
 let viewer, tileset, building;
 const orbit = {heading: 0, pitch: -0.48, distance: 118};
 const orbitLimits = {minDistance: 28, maxDistance: 150, minPitch: -1.4, maxPitch: -0.12};
@@ -26,10 +26,13 @@ function setPlacement() {
     center,
     new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(p.heading),0,0),
   );
-  const footprint = [[-2.8,-7.8],[2.8,-7.8],[2.8,7.8],[-2.8,7.8]];
-  const positions = footprint.map(([east,north]) => Cesium.Matrix4.multiplyByPoint(
+  // Measured tower slab in glTF X/Z: 8.66 m wide, 27 m deep.
+  // Cesium's Y-up, Z-forward correction maps (x,y,z) to (z,x,y).
+  // Apply that same correction to the cut; using (x,-z,0) crosses it by 90°.
+  const footprint = [[-4.43,-15.72],[4.53,-15.72],[4.53,11.57],[-4.43,11.57]];
+  const positions = footprint.map(([x,z]) => Cesium.Matrix4.multiplyByPoint(
     building.modelMatrix,
-    new Cesium.Cartesian3(east,north,0),
+    new Cesium.Cartesian3(z,x,0),
     new Cesium.Cartesian3(),
   ));
   tileset.clippingPolygons = new Cesium.ClippingPolygonCollection({
@@ -143,7 +146,11 @@ async function start() {
   );
   viewer.scene.primitives.add(tileset);
   status.textContent='Colocando el edificio…';
-  building = await Cesium.Model.fromGltfAsync({url:'./model/achive-tower-plants.glb'});
+  building = await Cesium.Model.fromGltfAsync({
+    url:'./model/achive-tower-plants.glb',
+    upAxis:Cesium.Axis.Y,
+    forwardAxis:Cesium.Axis.Z,
+  });
   viewer.scene.primitives.add(building);
   installOrbitControls();
   setPlacement();
