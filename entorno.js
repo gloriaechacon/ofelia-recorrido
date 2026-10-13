@@ -1,6 +1,6 @@
 const status = document.getElementById('status');
 const mapNavigation = document.body.dataset.navigation === 'map';
-const mapRadius = 3000;
+const mapRadius = 1000;
 const defaultPlacement = {east:-4.5,north:1,height:27.5,heading:-32};
 const inputs = Object.fromEntries(['east','north','height','heading'].map(id => [id,document.getElementById(id)]));
 for (const [key,input] of Object.entries(inputs)) input.value = defaultPlacement[key];
