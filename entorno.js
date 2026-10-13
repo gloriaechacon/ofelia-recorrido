@@ -1,7 +1,10 @@
 const status = document.getElementById('status');
 const inputs = Object.fromEntries(['east','north','height','heading'].map(id => [id,document.getElementById(id)]));
 const origin = { longitude: -58.2607608, latitude: -34.7159706 };
-let viewer, tileset, building;
+const placementStorageKey = 'ofelia-cesium-placement-v2';
+let viewer, tileset, building, groundPatch;
+const orbit = {heading: 0, pitch: -0.48, distance: 118};
+const orbitLimits = {minDistance: 28, maxDistance: 150, minPitch: -1.4, maxPitch: -0.12};
 
 function readPlacement() {
   return Object.fromEntries(Object.entries(inputs).map(([key,input]) => [key,Number(input.value)||0]));
@@ -23,32 +26,92 @@ function setPlacement() {
     center,
     new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(p.heading),0,0),
   );
-  const east = 11/91300, north = 17/111000;
+  const clipCorners = [[-9,-16],[9,-16],[9,16],[-9,16]];
+  const patchCorners = [[-9.5,-16.5],[9.5,-16.5],[9.5,16.5],[-9.5,16.5]];
+  const worldCorners = corners => corners.map(([x,y]) =>
+    Cesium.Matrix4.multiplyByPoint(building.modelMatrix,new Cesium.Cartesian3(x,y,0),new Cesium.Cartesian3()));
   tileset.clippingPolygons = new Cesium.ClippingPolygonCollection({
     polygons: [new Cesium.ClippingPolygon({
-      positions: Cesium.Cartesian3.fromDegreesArray([
-        p.longitude-east,p.latitude-north,
-        p.longitude+east,p.latitude-north,
-        p.longitude+east,p.latitude+north,
-        p.longitude-east,p.latitude+north,
-      ]),
+      positions: worldCorners(clipCorners),
     })],
   });
-  localStorage.setItem('ofelia-cesium-placement',JSON.stringify(readPlacement()));
+  const patchPositions = worldCorners(patchCorners).map(position => {
+    const point = Cesium.Cartographic.fromCartesian(position);
+    return Cesium.Cartesian3.fromRadians(point.longitude,point.latitude,p.height-1.3);
+  });
+  if (groundPatch) viewer.entities.remove(groundPatch);
+  groundPatch = viewer.entities.add({
+    polygon: {
+      hierarchy: patchPositions,
+      perPositionHeight: true,
+      material: Cesium.Color.fromCssColorString('#7e786e'),
+      doubleSided: true,
+    },
+  });
+  localStorage.setItem(placementStorageKey,JSON.stringify(readPlacement()));
   viewer.scene.requestRender();
 }
 function focusBuilding() {
   if (!viewer) return;
   const p = sitePosition();
   const center = Cesium.Cartesian3.fromDegrees(p.longitude,p.latitude,p.height+17);
-  viewer.camera.lookAt(center,new Cesium.Cartesian3(65,-85,55));
-  viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+  viewer.camera.lookAtTransform(
+    Cesium.Transforms.eastNorthUpToFixedFrame(center),
+    new Cesium.HeadingPitchRange(orbit.heading,orbit.pitch,orbit.distance),
+  );
   viewer.scene.requestRender();
 }
+function installOrbitControls() {
+  const controls = viewer.scene.screenSpaceCameraController;
+  controls.enableRotate = false;
+  controls.enableTranslate = false;
+  controls.enableZoom = false;
+  controls.enableTilt = false;
+  controls.enableLook = false;
+  const canvas = viewer.scene.canvas;
+  canvas.style.touchAction = 'none';
+  const pointers = new Map();
+  let lastPinchDistance = 0;
+  canvas.addEventListener('pointerdown',event => {
+    canvas.setPointerCapture(event.pointerId);
+    pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    lastPinchDistance = 0;
+  });
+  canvas.addEventListener('pointermove',event => {
+    if (!pointers.has(event.pointerId)) return;
+    const last = pointers.get(event.pointerId);
+    pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
+    if (pointers.size === 1) {
+      orbit.heading -= (event.clientX-last.x)*0.005;
+      orbit.pitch = Cesium.Math.clamp(orbit.pitch+(event.clientY-last.y)*0.004,
+        orbitLimits.minPitch,orbitLimits.maxPitch);
+    } else if (pointers.size === 2) {
+      const [a,b] = [...pointers.values()];
+      const pinchDistance = Math.hypot(a.x-b.x,a.y-b.y);
+      if (lastPinchDistance) orbit.distance = Cesium.Math.clamp(
+        orbit.distance*lastPinchDistance/pinchDistance,
+        orbitLimits.minDistance,orbitLimits.maxDistance);
+      lastPinchDistance = pinchDistance;
+    }
+    focusBuilding();
+  });
+  const release = event => {pointers.delete(event.pointerId);lastPinchDistance=0;};
+  canvas.addEventListener('pointerup',release);
+  canvas.addEventListener('pointercancel',release);
+  canvas.addEventListener('wheel',event => {
+    event.preventDefault();
+    orbit.distance = Cesium.Math.clamp(
+      orbit.distance*Math.exp(event.deltaY*0.001),
+      orbitLimits.minDistance,orbitLimits.maxDistance);
+    focusBuilding();
+  },{passive:false});
+}
 for (const input of Object.values(inputs)) input.addEventListener('change',() => {setPlacement();focusBuilding();});
-document.getElementById('reset').addEventListener('click',focusBuilding);
+document.getElementById('reset').addEventListener('click',() => {
+  orbit.heading=0;orbit.pitch=-0.48;orbit.distance=118;focusBuilding();
+});
 try {
-  const saved = JSON.parse(localStorage.getItem('ofelia-cesium-placement')||'null');
+  const saved = JSON.parse(localStorage.getItem(placementStorageKey)||'null');
   if (saved) for (const [key,input] of Object.entries(inputs)) {
     if (Number.isFinite(saved[key])) input.value = saved[key];
   }
@@ -83,6 +146,7 @@ async function start() {
   status.textContent='Colocando el edificio…';
   building = await Cesium.Model.fromGltfAsync({url:'./model/achive-tower.glb'});
   viewer.scene.primitives.add(building);
+  installOrbitControls();
   setPlacement();
   focusBuilding();
   status.textContent='Vista de prueba · ubicación pendiente de ajuste fino';
