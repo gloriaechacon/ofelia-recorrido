@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OFELIA · Mapa 3D</title>
+  <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/Widgets/widgets.css">
+  <style>
+    *{box-sizing:border-box}
+    html,body,#cesium{width:100%;height:100%;margin:0}
+    body{font:15px Arial,sans-serif;background:#14202a;color:#f4f0e8}
+    #cesium{position:fixed;inset:0}
+    .toolbar{position:fixed;top:14px;left:14px;max-width:min(365px,calc(100vw - 28px));z-index:5;background:rgba(18,30,39,.92);padding:15px;border:1px solid #53616b;border-radius:12px;box-shadow:0 8px 30px #0005}
+    h1{font:400 23px Georgia,serif;margin:0 0 5px}
+    p{margin:5px 0;line-height:1.4}
+    a{color:#eac99d}
+    button,input{font:inherit}
+    button{border:1px solid #87939c;background:#243946;color:#f4f0e8;border-radius:7px;padding:8px 11px;cursor:pointer}
+    button:hover{background:#395366}
+    .buttons{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+    #status{color:#eac99d}
+    details{margin-top:10px;border-top:1px solid #596772;padding-top:9px}
+    summary{cursor:pointer}
+    label{display:grid;grid-template-columns:1fr 70px;align-items:center;gap:8px;margin-top:8px}
+    input{width:70px;padding:5px;background:#e9eff1;border:0;border-radius:4px}
+    .note{font-size:12px;color:#d4dee2}
+    .hint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:5;background:rgba(18,30,39,.88);padding:9px 12px;border-radius:8px;text-align:center;white-space:nowrap;max-width:calc(100vw - 20px);font-size:12px}
+    .cesium-viewer-bottom{bottom:0!important}
+    @media(max-width:650px){.toolbar{top:8px;left:8px;max-width:calc(100vw - 16px);padding:10px}h1{font-size:18px}.toolbar p{font-size:13px}details[open]{max-height:45vh;overflow:auto}}
+  </style>
+</head>
+<body data-navigation="map">
+  <div id="cesium"></div>
+  <div class="toolbar">
+    <h1>OFELIA · Mapa 3D</h1>
+    <p>Explora Quilmes libremente hasta 7 km alrededor del edificio.</p>
+    <p id="status" role="status">Preparando Cesium…</p>
+    <p id="map-distance" class="note"></p>
+    <div class="buttons"><button id="reset" type="button">Volver a la fachada</button><a href="./index.html">Todos los recorridos</a><a href="./entorno.html">Vista orbital</a></div>
+    <input id="east" type="hidden"><input id="north" type="hidden"><input id="height" type="hidden"><input id="heading" type="hidden">
+  </div>
+  <div class="hint" style="white-space:normal;width:max-content">Arrastra para desplazarte · rueda para acercar · Ctrl + arrastrar para girar<br>En móvil: un dedo para moverte; dos para acercar, girar e inclinar</div>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/Cesium.js"></script>
+  <script src="./entorno.js" defer></script>
+</body>
+</html>

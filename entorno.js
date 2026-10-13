@@ -1,5 +1,8 @@
 const status = document.getElementById('status');
+const mapNavigation = document.body.dataset.navigation === 'map';
+const defaultPlacement = {east:-4.5,north:1,height:27.5,heading:-32};
 const inputs = Object.fromEntries(['east','north','height','heading'].map(id => [id,document.getElementById(id)]));
+for (const [key,input] of Object.entries(inputs)) input.value = defaultPlacement[key];
 const origin = { longitude: -58.2607608, latitude: -34.7159706 };
 const placementStorageKey = 'ofelia-cesium-placement-v7';
 let viewer, tileset, building;
@@ -43,6 +46,7 @@ function setPlacement() {
 }
 function focusBuilding() {
   if (!viewer) return;
+  if (mapNavigation) { resetMapView(); return; }
   const p = sitePosition();
   const center = Cesium.Cartesian3.fromDegrees(p.longitude,p.latitude,p.height+17);
   viewer.camera.lookAtTransform(
@@ -53,6 +57,7 @@ function focusBuilding() {
 }
 function resetOrbit() {
   if (!viewer) return;
+  if (mapNavigation) { resetMapView(); return; }
   const p = sitePosition();
   const center = Cesium.Cartesian3.fromDegrees(p.longitude,p.latitude,p.height+17);
   viewer.camera.lookAtTransform(
@@ -64,6 +69,54 @@ function resetOrbit() {
   orbit.distance = Cesium.Cartesian3.magnitude(viewer.camera.position);
   orbit.heading -= 1.95;
   focusBuilding();
+}
+function resetMapView() {
+  if (!viewer || !building) return;
+  viewer.camera.cancelFlight();
+  // Local glTF front is +Z, which Cesium maps to +X. Reuse the
+  // building matrix so returning home always faces the placed facade.
+  const target = Cesium.Matrix4.multiplyByPoint(building.modelMatrix,
+    new Cesium.Cartesian3(0,0,17),new Cesium.Cartesian3());
+  const frame = Cesium.Matrix4.clone(building.modelMatrix);
+  Cesium.Matrix4.setTranslation(frame,target,frame);
+  viewer.camera.lookAtTransform(frame,new Cesium.Cartesian3(100,0,38));
+  // Release the building frame; native Cesium controls can pan freely.
+  viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+  viewer.scene.requestRender();
+}
+function installMapControls() {
+  const controls = viewer.scene.screenSpaceCameraController;
+  controls.enableRotate = controls.enableTranslate = controls.enableZoom = true;
+  controls.enableTilt = controls.enableLook = true;
+  controls.minimumZoomDistance = 3;
+  controls.maximumZoomDistance = 7000;
+  controls.inertiaSpin = controls.inertiaTranslate = controls.inertiaZoom = 0;
+  viewer.scene.canvas.style.touchAction = 'none';
+  viewer.scene.canvas.addEventListener('contextmenu',event => event.preventDefault());
+  const geodesic = new Cesium.EllipsoidGeodesic();
+  const boundary = new Cesium.Cartographic();
+  viewer.scene.preRender.addEventListener(() => {
+    const p = sitePosition();
+    const center = Cesium.Cartographic.fromDegrees(p.longitude,p.latitude);
+    const position = viewer.camera.positionCartographic;
+    if (!Number.isFinite(position.height)) return;
+    geodesic.setEndPoints(center,position);
+    const beyondRadius = geodesic.surfaceDistance > 7000;
+    const distanceText = `Distancia al edificio: ${(Math.min(geodesic.surfaceDistance,7000)/1000).toLocaleString('es-AR',{maximumFractionDigits:2})} km`;
+    const distanceLabel = document.getElementById('map-distance');
+    if (distanceLabel.textContent !== distanceText) distanceLabel.textContent = distanceText;
+    const height = Cesium.Math.clamp(position.height,p.height+2,5000);
+    if (!beyondRadius && Math.abs(height-position.height)<0.01) return;
+    const location = beyondRadius
+      ? geodesic.interpolateUsingSurfaceDistance(7000,boundary) : position;
+    const direction = Cesium.Cartesian3.clone(viewer.camera.directionWC);
+    const up = Cesium.Cartesian3.clone(viewer.camera.upWC);
+    viewer.camera.setView({
+      destination:Cesium.Cartesian3.fromRadians(location.longitude,location.latitude,height),
+      orientation:{direction,up},
+    });
+    viewer.scene.requestRender();
+  });
 }
 function installOrbitControls() {
   const controls = viewer.scene.screenSpaceCameraController;
@@ -152,10 +205,11 @@ async function start() {
     forwardAxis:Cesium.Axis.Z,
   });
   viewer.scene.primitives.add(building);
-  installOrbitControls();
+  if (mapNavigation) installMapControls();
+  else installOrbitControls();
   setPlacement();
   resetOrbit();
-  status.textContent='Vista de prueba · ubicación pendiente de ajuste fino';
+  status.textContent=mapNavigation ? 'Exploración libre · radio de 7 km' : 'Vista de prueba · ubicación pendiente de ajuste fino';
 }
 start().catch(error => {
   status.textContent=error.message||String(error);
