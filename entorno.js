@@ -26,6 +26,15 @@ function setPlacement() {
     center,
     new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(p.heading),0,0),
   );
+  const footprint = [[-7.8,-12.9],[6.2,-12.9],[6.2,15.0],[-7.8,15.0]];
+  const positions = footprint.map(([east,north]) => Cesium.Matrix4.multiplyByPoint(
+    building.modelMatrix,
+    new Cesium.Cartesian3(east,north,0),
+    new Cesium.Cartesian3(),
+  ));
+  tileset.clippingPolygons = new Cesium.ClippingPolygonCollection({
+    polygons:[new Cesium.ClippingPolygon({positions})],
+  });
   localStorage.setItem(placementStorageKey,JSON.stringify(readPlacement()));
   viewer.scene.requestRender();
 }
@@ -134,7 +143,7 @@ async function start() {
   );
   viewer.scene.primitives.add(tileset);
   status.textContent='Colocando el edificio…';
-  building = await Cesium.Model.fromGltfAsync({url:'./model/achive-tower.glb'});
+  building = await Cesium.Model.fromGltfAsync({url:'./model/achive-tower-plants.glb'});
   viewer.scene.primitives.add(building);
   installOrbitControls();
   setPlacement();
