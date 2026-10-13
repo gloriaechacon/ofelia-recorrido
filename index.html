@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OFELIA · Recorridos 3D</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#101820;color:#f5f1eb;font:16px Arial,sans-serif}header{padding:30px max(24px,7vw);border-bottom:1px solid #35414a}header h1{margin:0;font:400 34px Georgia,serif;letter-spacing:.08em}header p{color:#b8c4ca;margin:7px 0 0}main{max-width:1250px;margin:0 auto;padding:48px 24px}h2{font:400 30px Georgia,serif;margin:0 0 28px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}.card{background:#192630;border:1px solid #40505b;border-radius:15px;overflow:hidden}.card img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}.content{padding:25px}.content h3{font:400 27px Georgia,serif;margin:0 0 10px}.content p{min-height:3em;color:#c4d0d5;line-height:1.5;margin:0 0 24px}.button{display:inline-block;background:#d5b58c;color:#18242b;text-decoration:none;border-radius:8px;padding:14px 20px;font-weight:700}.button:hover{background:#e8c9a1}footer{color:#b8c4ca;margin-top:30px;line-height:1.5}@media(max-width:700px){.grid{grid-template-columns:1fr}main{padding-top:32px}}
+  </style>
+</head>
+<body>
+  <header><h1>OFELIA</h1><p>Recorridos 3D interactivos</p></header>
+  <main>
+    <h2>Elige qué quieres explorar</h2>
+    <div class="grid">
+      <article class="card"><img src="./interior-preview.png" alt="Cocina del departamento amueblado"><div class="content"><h3>Departamento amueblado</h3><p>Camina por el interior renderizado en Unreal. Usa WASD y arrastra el ratón para mirar.</p><a class="button" href="./interior.html">Entrar al interior</a></div></article>
+      <article class="card"><img src="./exterior-preview.png" alt="Vista orbital del edificio"><div class="content"><h3>Edificio orbital</h3><p>Gira el edificio con el ratón y acércate con la rueda.</p><a class="button" href="./orbit.html">Explorar el edificio</a></div></article>
+    </div>
+    <footer>El exterior carga un modelo 3D en tu navegador. El interior requiere que la computadora que ejecuta Unreal esté encendida.</footer>
+  </main>
+</body>
+</html>

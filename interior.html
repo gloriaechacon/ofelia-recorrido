@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OFELIA · Interior</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#101820;color:#f5f1eb;font:16px Arial,sans-serif}header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#192630}nav{display:flex;gap:20px}a{color:#e8c9a1}h1{font:400 22px Georgia,serif;margin:0}iframe{display:block;border:0;width:100vw;height:calc(100dvh - 58px)}#unavailable{max-width:680px;margin:15vh auto;padding:28px;line-height:1.6;background:#192630;border-radius:12px}</style></head>
+<body><header><h1>OFELIA · Interior</h1><nav><a id="direct" target="_blank" rel="noopener" hidden>Abrir Unreal en otra pestaña</a><a href="./index.html">Volver a los recorridos</a></nav></header><div id="unavailable" hidden>La transmisión del interior se conectará cuando se publique el servidor de Unreal.</div><iframe id="stream" title="Recorrido interior de Unreal" allow="fullscreen; autoplay" hidden></iframe>
+<script type="module">
+  try {
+    const response = await fetch('./config.json', {cache:'no-store'});
+    if (!response.ok) throw new Error('Configuración no disponible');
+    const config = await response.json();
+    if (!config.interiorUrl || !/^https:\/\//.test(config.interiorUrl)) throw new Error('Transmisión pendiente');
+    const frame = document.getElementById('stream');
+    frame.src = config.interiorUrl;
+    frame.hidden = false;
+    const direct = document.getElementById('direct');
+    direct.href = config.interiorUrl;
+    direct.hidden = false;
+  } catch {
+    document.getElementById('unavailable').hidden = false;
+  }
+</script></body></html>

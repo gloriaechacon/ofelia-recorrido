@@ -1,0 +1,40 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ACHIVE | Vista orbital</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; overflow: hidden; background: #d9e2e6; color: #f5f3ec; font: 15px Arial, sans-serif; }
+    #viewer { position: fixed; inset: 0; display: block; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+    #viewer:active { cursor: grabbing; }
+    .top { position: fixed; top: 16px; left: 16px; right: 16px; display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; pointer-events: none; }
+    .panel { background: rgba(18, 28, 35, .9); border: 1px solid rgba(255,255,255,.13); border-radius: 12px; padding: 14px 17px; backdrop-filter: blur(8px); pointer-events: auto; }
+    h1 { margin: 0 0 5px; font: 400 23px Georgia, serif; }
+    p { margin: 0; line-height: 1.5; color: #d3dce0; }
+    a, button { color: #f5e2c7; }
+    button { background: #293b45; border: 1px solid #72818a; border-radius: 7px; font: inherit; padding: 10px 14px; cursor: pointer; }
+    button:hover { background: #3a525f; }
+    .actions { display: flex; gap: 8px; }
+    #loading { position: fixed; inset: 0; display: grid; place-items: center; background: #16232c; text-align: center; padding: 30px; }
+    #loading[hidden] { display: none; }
+    .loading-card { width: min(440px, 100%); }
+    .bar { height: 7px; overflow: hidden; background: #3d515c; border-radius: 9px; margin: 20px 0 12px; }
+    #fill { width: 0; height: 100%; background: #d5b58c; transition: width .3s; }
+    .hint { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: rgba(18,28,35,.86); border-radius: 8px; padding: 10px 16px; white-space: nowrap; }
+    @media(max-width:620px) { .top { flex-direction: column; } .hint { white-space: normal; width: calc(100% - 32px); text-align: center; } }
+  </style>
+
+</head>
+<body>
+  <canvas id="viewer" aria-label="Modelo 3D orbital del edificio ACHIVE"></canvas>
+  <div class="top">
+    <div class="panel"><h1>ACHIVE · Vista orbital</h1><p>Exterior del edificio, sin modo de caminar.</p><p><a href="./index.html">Volver a los recorridos</a></p></div>
+    <div class="panel actions"><button id="reset" type="button">Restablecer vista</button></div>
+  </div>
+  <div class="hint">Arrastra para girar · rueda para acercar o alejar</div>
+  <div id="loading"><div class="loading-card"><h1>Preparando el modelo 3D</h1><p id="message">Cargando el edificio…</p><div class="bar"><div id="fill"></div></div><p id="percent">0 %</p></div></div>
+  <script type="module" src="./orbit.js"></script>
+</body>
+</html>
