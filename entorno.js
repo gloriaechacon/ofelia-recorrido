@@ -1,7 +1,7 @@
 const status = document.getElementById('status');
 const inputs = Object.fromEntries(['east','north','height','heading'].map(id => [id,document.getElementById(id)]));
 const origin = { longitude: -58.2607608, latitude: -34.7159706 };
-const placementStorageKey = 'ofelia-cesium-placement-v6';
+const placementStorageKey = 'ofelia-cesium-placement-v7';
 let viewer, tileset, building;
 const orbit = {heading: 0, pitch: -0.48, distance: 118};
 const orbitLimits = {minDistance: 28, maxDistance: 150, minPitch: -1.4, maxPitch: -0.12};
