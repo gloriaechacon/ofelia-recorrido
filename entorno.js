@@ -37,7 +37,7 @@ function setPlacement() {
   });
   const patchPositions = worldCorners(patchCorners).map(position => {
     const point = Cesium.Cartographic.fromCartesian(position);
-    return Cesium.Cartesian3.fromRadians(point.longitude,point.latitude,p.height-1.3);
+    return Cesium.Cartesian3.fromRadians(point.longitude,point.latitude,p.height+0.2);
   });
   if (groundPatch) viewer.entities.remove(groundPatch);
   groundPatch = viewer.entities.add({
@@ -72,7 +72,8 @@ function resetOrbit() {
   orbit.heading = viewer.camera.heading;
   orbit.pitch = viewer.camera.pitch;
   orbit.distance = Cesium.Cartesian3.magnitude(viewer.camera.position);
-  viewer.scene.requestRender();
+  orbit.heading -= 0.625;
+  focusBuilding();
 }
 function installOrbitControls() {
   const controls = viewer.scene.screenSpaceCameraController;
