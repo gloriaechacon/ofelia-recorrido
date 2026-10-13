@@ -61,6 +61,19 @@ function focusBuilding() {
   );
   viewer.scene.requestRender();
 }
+function resetOrbit() {
+  if (!viewer) return;
+  const p = sitePosition();
+  const center = Cesium.Cartesian3.fromDegrees(p.longitude,p.latitude,p.height+17);
+  viewer.camera.lookAtTransform(
+    Cesium.Transforms.eastNorthUpToFixedFrame(center),
+    new Cesium.Cartesian3(65,-85,55),
+  );
+  orbit.heading = viewer.camera.heading;
+  orbit.pitch = viewer.camera.pitch;
+  orbit.distance = Cesium.Cartesian3.magnitude(viewer.camera.position);
+  viewer.scene.requestRender();
+}
 function installOrbitControls() {
   const controls = viewer.scene.screenSpaceCameraController;
   controls.enableRotate = false;
@@ -82,8 +95,8 @@ function installOrbitControls() {
     const last = pointers.get(event.pointerId);
     pointers.set(event.pointerId,{x:event.clientX,y:event.clientY});
     if (pointers.size === 1) {
-      orbit.heading -= (event.clientX-last.x)*0.005;
-      orbit.pitch = Cesium.Math.clamp(orbit.pitch+(event.clientY-last.y)*0.004,
+      orbit.heading -= (event.clientX-last.x)*0.0025;
+      orbit.pitch = Cesium.Math.clamp(orbit.pitch+(event.clientY-last.y)*0.0025,
         orbitLimits.minPitch,orbitLimits.maxPitch);
     } else if (pointers.size === 2) {
       const [a,b] = [...pointers.values()];
@@ -107,9 +120,7 @@ function installOrbitControls() {
   },{passive:false});
 }
 for (const input of Object.values(inputs)) input.addEventListener('change',() => {setPlacement();focusBuilding();});
-document.getElementById('reset').addEventListener('click',() => {
-  orbit.heading=0;orbit.pitch=-0.48;orbit.distance=118;focusBuilding();
-});
+document.getElementById('reset').addEventListener('click',resetOrbit);
 try {
   const saved = JSON.parse(localStorage.getItem(placementStorageKey)||'null');
   if (saved) for (const [key,input] of Object.entries(inputs)) {
@@ -148,7 +159,7 @@ async function start() {
   viewer.scene.primitives.add(building);
   installOrbitControls();
   setPlacement();
-  focusBuilding();
+  resetOrbit();
   status.textContent='Vista de prueba · ubicación pendiente de ajuste fino';
 }
 start().catch(error => {
