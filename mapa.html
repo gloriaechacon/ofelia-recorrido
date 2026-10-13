@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>OFELIA · Mapa 3D</title>
   <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/Widgets/widgets.css">
   <style>
@@ -26,20 +26,32 @@
     .note{font-size:12px;color:#d4dee2}
     .hint{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:5;background:rgba(18,30,39,.88);padding:9px 12px;border-radius:8px;text-align:center;white-space:nowrap;max-width:calc(100vw - 20px);font-size:12px}
     .cesium-viewer-bottom{bottom:0!important}
-    @media(max-width:650px){.toolbar{top:8px;left:8px;max-width:calc(100vw - 16px);padding:10px}h1{font-size:18px}.toolbar p{font-size:13px}details[open]{max-height:45vh;overflow:auto}}
+    .hint-mobile{display:none}
+    @media(max-width:650px){
+      .toolbar{top:max(8px,env(safe-area-inset-top));left:max(8px,env(safe-area-inset-left));max-width:calc(100vw - 16px);padding:10px}
+      h1{font-size:18px}.toolbar p{font-size:13px}.description{display:none}
+      .buttons{gap:4px 10px;margin-top:6px;align-items:center}
+      .buttons button,.buttons a{min-height:44px;display:inline-flex;align-items:center;font-size:13px}
+      .hint{bottom:calc(40px + env(safe-area-inset-bottom));pointer-events:none}
+      .hint-desktop{display:none}.hint-mobile{display:block}
+    }
+    @media(max-height:450px) and (orientation:landscape){
+      .toolbar{max-width:300px;padding:8px;top:max(5px,env(safe-area-inset-top));left:max(5px,env(safe-area-inset-left))}
+      .description,#map-distance{display:none}h1{font-size:18px}.buttons{margin-top:4px}
+    }
   </style>
 </head>
 <body data-navigation="map">
   <div id="cesium"></div>
   <div class="toolbar">
     <h1>OFELIA · Mapa 3D</h1>
-    <p>Explora Quilmes libremente hasta 7 km alrededor del edificio.</p>
+    <p class="description">Explora Quilmes libremente hasta 3 km alrededor del edificio.</p>
     <p id="status" role="status">Preparando Cesium…</p>
     <p id="map-distance" class="note"></p>
     <div class="buttons"><button id="reset" type="button">Volver a la fachada</button><a href="./index.html">Todos los recorridos</a><a href="./entorno.html">Vista orbital</a></div>
     <input id="east" type="hidden"><input id="north" type="hidden"><input id="height" type="hidden"><input id="heading" type="hidden">
   </div>
-  <div class="hint" style="white-space:normal;width:max-content">Arrastra para desplazarte · rueda para acercar · Ctrl + arrastrar para girar<br>En móvil: un dedo para moverte; dos para acercar, girar e inclinar</div>
+  <div class="hint" style="white-space:normal;width:max-content"><span class="hint-desktop">Arrastra para desplazarte · rueda para acercar · Ctrl + arrastrar para girar</span><span class="hint-mobile">Un dedo para moverte · dos para acercar, girar e inclinar</span></div>
   <script src="https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/Cesium.js"></script>
   <script src="./entorno.js" defer></script>
 </body>

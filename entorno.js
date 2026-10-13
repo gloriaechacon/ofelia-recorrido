@@ -1,5 +1,6 @@
 const status = document.getElementById('status');
 const mapNavigation = document.body.dataset.navigation === 'map';
+const mapRadius = 3000;
 const defaultPlacement = {east:-4.5,north:1,height:27.5,heading:-32};
 const inputs = Object.fromEntries(['east','north','height','heading'].map(id => [id,document.getElementById(id)]));
 for (const [key,input] of Object.entries(inputs)) input.value = defaultPlacement[key];
@@ -89,7 +90,7 @@ function installMapControls() {
   controls.enableRotate = controls.enableTranslate = controls.enableZoom = true;
   controls.enableTilt = controls.enableLook = true;
   controls.minimumZoomDistance = 3;
-  controls.maximumZoomDistance = 7000;
+  controls.maximumZoomDistance = mapRadius;
   controls.inertiaSpin = controls.inertiaTranslate = controls.inertiaZoom = 0;
   viewer.scene.canvas.style.touchAction = 'none';
   viewer.scene.canvas.addEventListener('contextmenu',event => event.preventDefault());
@@ -101,11 +102,11 @@ function installMapControls() {
     const position = viewer.camera.positionCartographic;
     if (!Number.isFinite(position.height)) return;
     geodesic.setEndPoints(center,position);
-    const beyondRadius = geodesic.surfaceDistance > 7000.01;
-    const height = Cesium.Math.clamp(position.height,p.height+2,5000);
+    const beyondRadius = geodesic.surfaceDistance > mapRadius+0.01;
+    const height = Cesium.Math.clamp(position.height,p.height+2,mapRadius);
     if (beyondRadius || Math.abs(height-position.height)>=0.01) {
       const location = beyondRadius
-        ? geodesic.interpolateUsingSurfaceDistance(7000,boundary) : position;
+        ? geodesic.interpolateUsingSurfaceDistance(mapRadius,boundary) : position;
       const direction = Cesium.Cartesian3.clone(viewer.camera.directionWC);
       const up = Cesium.Cartesian3.clone(viewer.camera.upWC);
       viewer.camera.setView({
@@ -211,7 +212,7 @@ async function start() {
   else installOrbitControls();
   setPlacement();
   resetOrbit();
-  status.textContent=mapNavigation ? 'Exploración libre · radio de 7 km' : 'Vista de prueba · ubicación pendiente de ajuste fino';
+  status.textContent=mapNavigation ? `Exploración libre · radio de ${mapRadius/1000} km` : 'Vista de prueba · ubicación pendiente de ajuste fino';
 }
 start().catch(error => {
   status.textContent=error.message||String(error);
