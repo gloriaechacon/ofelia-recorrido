@@ -26,7 +26,7 @@ function setPlacement() {
     center,
     new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(p.heading),0,0),
   );
-  const footprint = [[-4.3,-9.5],[4.3,-9.5],[4.3,9.5],[-4.3,9.5]];
+  const footprint = [[-2.8,-7.8],[2.8,-7.8],[2.8,7.8],[-2.8,7.8]];
   const positions = footprint.map(([east,north]) => Cesium.Matrix4.multiplyByPoint(
     building.modelMatrix,
     new Cesium.Cartesian3(east,north,0),
