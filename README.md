@@ -7,3 +7,9 @@ El exterior usa `model/part-01.bin` y `model/part-02.bin`. El interior usa `mode
 La prueba interior incluye living y cocina. Las texturas y luces son aproximadas respecto a D5 y Unreal; las colisiones se calculan a partir de las cajas de los muebles y paredes, por lo que algunas zonas necesitan ajustes. La primera carga transfiere el modelo al dispositivo visitante y puede tardar según su conexión.
 
 La versión pública actual está en https://ofelia-recorrido.vercel.app/. El repositorio de GitHub conserva el código y los modelos; el sitio conectado se actualiza cuando se suben cambios a `main`.
+
+## Vista de prueba con Cesium
+
+`entorno.html` muestra Google Photorealistic 3D Tiles y el edificio sobre Almirante Brown 257. La posición y el recorte requieren ajuste visual antes de enlazar esta vista desde la portada. `model/achive-tower.glb` contiene una copia ligera y aislada de la torre; el orbital original no se modifica.
+
+El token se configura en el proyecto de Vercel, en **Settings → Environment Variables**, con nombre `CESIUM_ION_TOKEN` y entorno **Production**. Después de guardarlo se debe crear un nuevo deployment para que la función `api/cesium-config.js` lo lea. El token debe tener solo `assets:read`, acceso al recurso 2275207 y Allowed URL `https://ofelia-recorrido.vercel.app`. El valor llega al navegador para llamar a Cesium ion, por lo que no se considera secreto frente a visitantes; las restricciones del token limitan su uso. No colocar el valor en GitHub ni en este README.

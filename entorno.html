@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ACHIVE · Entorno real (vista de prueba)</title>
+  <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/Widgets/widgets.css">
+  <style>
+    *{box-sizing:border-box}
+    html,body,#cesium{width:100%;height:100%;margin:0}
+    body{font:15px Arial,sans-serif;background:#14202a;color:#f4f0e8}
+    #cesium{position:fixed;inset:0}
+    .toolbar{position:fixed;top:14px;left:14px;max-width:min(365px,calc(100vw - 28px));z-index:5;background:rgba(18,30,39,.92);padding:15px;border:1px solid #53616b;border-radius:12px;box-shadow:0 8px 30px #0005}
+    h1{font:400 23px Georgia,serif;margin:0 0 5px}
+    p{margin:5px 0;line-height:1.4}
+    a{color:#eac99d}
+    button,input{font:inherit}
+    button{border:1px solid #87939c;background:#243946;color:#f4f0e8;border-radius:7px;padding:8px 11px;cursor:pointer}
+    button:hover{background:#395366}
+    .buttons{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+    #status{color:#eac99d}
+    details{margin-top:10px;border-top:1px solid #596772;padding-top:9px}
+    summary{cursor:pointer}
+    label{display:grid;grid-template-columns:1fr 70px;align-items:center;gap:8px;margin-top:8px}
+    input{width:70px;padding:5px;background:#e9eff1;border:0;border-radius:4px}
+    .note{font-size:12px;color:#d4dee2}
+    .cesium-viewer-bottom{bottom:0!important}
+    @media(max-width:650px){.toolbar{top:8px;left:8px;max-width:calc(100vw - 16px);padding:10px}h1{font-size:18px}.toolbar p{font-size:13px}details[open]{max-height:45vh;overflow:auto}}
+  </style>
+</head>
+<body>
+  <div id="cesium"></div>
+  <div class="toolbar">
+    <h1>ACHIVE · Entorno real</h1>
+    <p>Vista de prueba en Almirante Brown 257, Quilmes.</p>
+    <p id="status" role="status">Preparando Cesium…</p>
+    <div class="buttons"><button id="reset" type="button">Volver al edificio</button><a href="./orbit.html">Vista orbital ligera</a></div>
+    <details><summary>Ajustar implantación</summary>
+      <p class="note">Los valores son provisionales. Ajusta el edificio con el mapa real antes de mostrar esta vista a clientes.</p>
+      <label>Este (m)<input id="east" type="number" step="0.5" value="0"></label>
+      <label>Norte (m)<input id="north" type="number" step="0.5" value="0"></label>
+      <label>Altura (m)<input id="height" type="number" step="0.5" value="20"></label>
+      <label>Giro (°)<input id="heading" type="number" step="1" value="0"></label>
+      <p class="note">Los ajustes se guardan solo en este navegador.</p>
+    </details>
+  </div>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.146/Build/Cesium/Cesium.js"></script>
+  <script src="./entorno.js" defer></script>
+</body>
+</html>
