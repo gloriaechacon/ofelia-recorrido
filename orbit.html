@@ -14,6 +14,7 @@
     h1 { margin: 0 0 5px; font: 400 23px Georgia, serif; }
     p { margin: 0; line-height: 1.5; color: #d3dce0; }
     a, button { color: #f5e2c7; }
+    .cesium-link { display: inline-block; margin-top: 10px; padding: 9px 12px; border: 1px solid #d5b58c; border-radius: 7px; text-decoration: none; background: #384b50; }
     button { background: #293b45; border: 1px solid #72818a; border-radius: 7px; font: inherit; padding: 10px 14px; cursor: pointer; }
     button:hover { background: #3a525f; }
     .actions { display: flex; gap: 8px; }
@@ -30,7 +31,7 @@
 <body>
   <canvas id="viewer" aria-label="Modelo 3D orbital del edificio ACHIVE"></canvas>
   <div class="top">
-    <div class="panel"><h1>ACHIVE · Vista orbital</h1><p>Exterior del edificio, sin modo de caminar.</p><p><a href="./index.html">Volver a los recorridos</a></p></div>
+    <div class="panel"><h1>ACHIVE · Vista orbital</h1><p>Exterior del edificio, sin modo de caminar.</p><p><a class="cesium-link" href="./entorno.html">Ver entorno real con Cesium</a></p><p><a href="./index.html">Volver a los recorridos</a></p></div>
     <div class="panel actions"><button id="reset" type="button">Restablecer vista</button></div>
   </div>
   <div class="hint">Arrastra para girar · rueda para acercar o alejar</div>

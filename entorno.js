@@ -76,7 +76,7 @@ async function start() {
   });
   status.textContent='Cargando el entorno de Google…';
   tileset = await Cesium.createGooglePhotorealistic3DTileset(
-    {usingOnlyWithGoogleGeocoder:true},
+    {onlyUsingWithGoogleGeocoder:true},
     {maximumScreenSpaceError: matchMedia('(pointer: coarse)').matches ? 24 : 16},
   );
   viewer.scene.primitives.add(tileset);
