@@ -1,7 +1,7 @@
 const status = document.getElementById('status');
 const inputs = Object.fromEntries(['east','north','height','heading'].map(id => [id,document.getElementById(id)]));
 const origin = { longitude: -58.2607608, latitude: -34.7159706 };
-const placementStorageKey = 'ofelia-cesium-placement-v5';
+const placementStorageKey = 'ofelia-cesium-placement-v6';
 let viewer, tileset, building;
 const orbit = {heading: 0, pitch: -0.48, distance: 118};
 const orbitLimits = {minDistance: 28, maxDistance: 150, minPitch: -1.4, maxPitch: -0.12};
@@ -110,7 +110,7 @@ function installOrbitControls() {
     focusBuilding();
   },{passive:false});
 }
-for (const input of Object.values(inputs)) input.addEventListener('change',() => {setPlacement();focusBuilding();});
+for (const input of Object.values(inputs)) input.addEventListener('input',() => {setPlacement();focusBuilding();});
 document.getElementById('reset').addEventListener('click',resetOrbit);
 try {
   const saved = JSON.parse(localStorage.getItem(placementStorageKey)||'null');
